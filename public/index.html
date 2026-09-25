@@ -93,12 +93,17 @@
       </div>
     </header>
 
-    <!-- My Profile Snapshot Banner -->
+    <!-- My Profile Snapshot Banner with Edit Button -->
     <div class="max-w-7xl mx-auto px-4 pt-6">
       <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 class="text-lg font-bold text-slate-800">Welcome, <span id="bannerName"></span> 👋</h2>
-          <p id="bannerBio" class="text-xs text-slate-500 mt-0.5"></p>
+          <div class="flex items-center gap-3">
+            <h2 class="text-lg font-bold text-slate-800">Welcome, <span id="bannerName"></span> 👋</h2>
+            <button onclick="openEditProfileModal()" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 text-indigo-600 border border-slate-300 hover:border-indigo-300 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
+              <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+            </button>
+          </div>
+          <p id="bannerBio" class="text-xs text-slate-500 mt-1"></p>
         </div>
         <div class="flex flex-wrap gap-4 text-xs">
           <div class="bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg">
@@ -148,6 +153,45 @@
           <div id="requestsList" class="divide-y divide-slate-100"></div>
         </div>
       </section>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: EDIT PROFILE ================= -->
+  <div id="editProfileModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-user-pen text-indigo-600"></i> Edit Profile Details
+        </h3>
+        <button onclick="closeModal('editProfileModal')" class="text-slate-400 hover:text-slate-600 text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="editProfileError" class="hidden mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-600 text-xs rounded-lg"></div>
+
+      <form id="editProfileForm" onsubmit="submitEditProfile(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Full Name *</label>
+          <input type="text" id="editName" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Bio / Headline</label>
+          <input type="text" id="editBio" class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. 3rd year CSE student interested in web dev">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-emerald-700 mb-1">Skills You Can Teach (Comma-separated) *</label>
+          <input type="text" id="editOffered" required class="w-full px-3 py-2 border border-emerald-300 bg-emerald-50/20 rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-indigo-700 mb-1">Skills You Want To Learn (Comma-separated) *</label>
+          <input type="text" id="editWanted" required class="w-full px-3 py-2 border border-indigo-300 bg-indigo-50/20 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeModal('editProfileModal')" class="px-4 py-2 border rounded-lg text-sm text-slate-600 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow transition">Save Changes</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -304,6 +348,51 @@
       localStorage.removeItem('skillswap_user');
       currentUser = null;
       showAuth();
+    }
+
+    // ================= EDIT PROFILE HANDLERS =================
+    function openEditProfileModal() {
+      document.getElementById('editName').value = currentUser.name || '';
+      document.getElementById('editBio').value = currentUser.bio || '';
+      document.getElementById('editOffered').value = currentUser.skills_offered || '';
+      document.getElementById('editWanted').value = currentUser.skills_wanted || '';
+      document.getElementById('editProfileError').classList.add('hidden');
+      document.getElementById('editProfileModal').classList.remove('hidden');
+    }
+
+    async function submitEditProfile(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('editName').value,
+        bio: document.getElementById('editBio').value,
+        skills_offered: document.getElementById('editOffered').value,
+        skills_wanted: document.getElementById('editWanted').value
+      };
+
+      try {
+        const res = await fetch(`/api/profile/${currentUser.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          const errDiv = document.getElementById('editProfileError');
+          errDiv.innerText = data.error || 'Failed to update profile';
+          errDiv.classList.remove('hidden');
+          return;
+        }
+
+        // Update local session
+        currentUser = data.user;
+        localStorage.setItem('skillswap_user', JSON.stringify(currentUser));
+
+        closeModal('editProfileModal');
+        showDashboard(); // Refresh UI and recalculate matches
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     function switchTab(tab) {

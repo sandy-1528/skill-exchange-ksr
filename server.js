@@ -40,7 +40,31 @@ app.post('/api/login', (req, res) => {
   res.json({ message: 'Login successful', user });
 });
 
-// 3. Smart Matching API for the logged in user
+// 3. Edit / Update Profile API
+app.put('/api/profile/:id', (req, res) => {
+  const { name, bio, skills_offered, skills_wanted } = req.body;
+  const userId = req.params.id;
+
+  if (!name || !skills_offered || !skills_wanted) {
+    return res.status(400).json({ error: 'Name, Offered skills, and Wanted skills are required.' });
+  }
+
+  try {
+    const stmt = db.prepare(`
+      UPDATE users 
+      SET name = ?, bio = ?, skills_offered = ?, skills_wanted = ? 
+      WHERE id = ?
+    `);
+    stmt.run(name, bio || '', skills_offered, skills_wanted, userId);
+
+    const updatedUser = db.prepare('SELECT id, name, email, bio, skills_offered, skills_wanted FROM users WHERE id = ?').get(userId);
+    res.json({ message: 'Profile updated successfully', user: updatedUser });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 4. Smart Matching API
 app.get('/api/match/:userId', (req, res) => {
   const current = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.userId);
   if (!current) return res.status(404).json({ error: 'User not found' });
@@ -78,7 +102,7 @@ app.get('/api/match/:userId', (req, res) => {
   res.json(scored);
 });
 
-// 4. Browse / Search Peers
+// 5. Browse / Search Peers
 app.get('/api/users', (req, res) => {
   const { search, excludeId } = req.query;
   let query = `
@@ -101,7 +125,7 @@ app.get('/api/users', (req, res) => {
   res.json(data);
 });
 
-// 5. Swap Requests
+// 6. Swap Requests
 app.post('/api/requests', (req, res) => {
   const { sender_id, receiver_id, skill_offered, skill_requested } = req.body;
   const stmt = db.prepare(`
@@ -130,7 +154,7 @@ app.patch('/api/requests/:id', (req, res) => {
   res.json({ message: 'Status updated' });
 });
 
-// 6. Reviews
+// 7. Reviews
 app.post('/api/reviews', (req, res) => {
   const { reviewer_id, target_id, rating, comment } = req.body;
   db.prepare(`
