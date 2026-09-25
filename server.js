@@ -15,11 +15,11 @@ app.post('/api/register', (req, res) => {
 
   try {
     const stmt = db.prepare(`
-      INSERT INTO users (name, email, password, bio, skills_offered, skills_wanted)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO users (name, email, password, bio, skills_offered, skills_wanted, credits)
+      VALUES (?, ?, ?, ?, ?, ?, 5)
     `);
     const result = stmt.run(name, email, password, bio || '', skills_offered, skills_wanted);
-    const newUser = db.prepare('SELECT id, name, email, bio, skills_offered, skills_wanted FROM users WHERE id = ?').get(result.lastInsertRowid);
+    const newUser = db.prepare('SELECT id, name, email, bio, skills_offered, skills_wanted, credits FROM users WHERE id = ?').get(result.lastInsertRowid);
     res.json({ message: 'Registration successful', user: newUser });
   } catch (err) {
     if (err.message.includes('UNIQUE constraint failed: users.email')) {
@@ -29,36 +29,55 @@ app.post('/api/register', (req, res) => {
   }
 });
 
-// 2. Login API
+// 2. Login API (Cleaned & Case-insensitive)
 app.post('/api/login', (req, res) => {
-  const { email, password } = req.body;
-  const user = db.prepare('SELECT id, name, email, bio, skills_offered, skills_wanted FROM users WHERE email = ? AND password = ?').get(email, password);
+  let { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Please enter email and password.' });
+  }
+
+  email = email.trim().toLowerCase();
+  password = String(password).trim();
+
+  // Case-insensitive match on email
+  const user = db.prepare(`
+    SELECT id, name, email, bio, skills_offered, skills_wanted, credits 
+    FROM users 
+    WHERE LOWER(TRIM(email)) = ? AND TRIM(password) = ?
+  `).get(email, password);
 
   if (!user) {
-    return res.status(401).json({ error: 'Invalid email or password.' });
+    return res.status(401).json({ error: 'Invalid email or password. Please check your credentials.' });
   }
   res.json({ message: 'Login successful', user });
 });
 
-// 3. Edit / Update Profile API
+// Quick switch API for instant switching without re-entering password
+app.get('/api/users/quick-switch/:id', (req, res) => {
+  const user = db.prepare(`
+    SELECT id, name, email, bio, skills_offered, skills_wanted, credits 
+    FROM users 
+    WHERE id = ?
+  `).get(req.params.id);
+
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  res.json({ message: 'Switched successfully', user });
+});
+
+// 3. Edit Profile
 app.put('/api/profile/:id', (req, res) => {
   const { name, bio, skills_offered, skills_wanted } = req.body;
   const userId = req.params.id;
 
-  if (!name || !skills_offered || !skills_wanted) {
-    return res.status(400).json({ error: 'Name, Offered skills, and Wanted skills are required.' });
-  }
-
   try {
-    const stmt = db.prepare(`
+    db.prepare(`
       UPDATE users 
       SET name = ?, bio = ?, skills_offered = ?, skills_wanted = ? 
       WHERE id = ?
-    `);
-    stmt.run(name, bio || '', skills_offered, skills_wanted, userId);
+    `).run(name, bio || '', skills_offered, skills_wanted, userId);
 
-    const updatedUser = db.prepare('SELECT id, name, email, bio, skills_offered, skills_wanted FROM users WHERE id = ?').get(userId);
-    res.json({ message: 'Profile updated successfully', user: updatedUser });
+    const updatedUser = db.prepare('SELECT id, name, email, bio, skills_offered, skills_wanted, credits FROM users WHERE id = ?').get(userId);
+    res.json({ message: 'Profile updated', user: updatedUser });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -70,7 +89,7 @@ app.get('/api/match/:userId', (req, res) => {
   if (!current) return res.status(404).json({ error: 'User not found' });
 
   const peers = db.prepare(`
-    SELECT u.id, u.name, u.email, u.bio, u.skills_offered, u.skills_wanted,
+    SELECT u.id, u.name, u.email, u.bio, u.skills_offered, u.skills_wanted, u.credits,
       ROUND(AVG(r.rating), 1) as avg_rating,
       COUNT(r.id) as review_count
     FROM users u
@@ -102,11 +121,11 @@ app.get('/api/match/:userId', (req, res) => {
   res.json(scored);
 });
 
-// 5. Browse / Search Peers
+// 5. Browse All Users
 app.get('/api/users', (req, res) => {
   const { search, excludeId } = req.query;
   let query = `
-    SELECT u.id, u.name, u.email, u.bio, u.skills_offered, u.skills_wanted,
+    SELECT u.id, u.name, u.email, u.bio, u.skills_offered, u.skills_wanted, u.credits,
       ROUND(AVG(r.rating), 1) as avg_rating,
       COUNT(r.id) as review_count
     FROM users u
@@ -128,11 +147,14 @@ app.get('/api/users', (req, res) => {
 // 6. Swap Requests
 app.post('/api/requests', (req, res) => {
   const { sender_id, receiver_id, skill_offered, skill_requested } = req.body;
+  const roomName = `SkillSwap_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+  const meet_link = `https://meet.jit.si/${roomName}`;
+
   const stmt = db.prepare(`
-    INSERT INTO swap_requests (sender_id, receiver_id, skill_offered, skill_requested)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO swap_requests (sender_id, receiver_id, skill_offered, skill_requested, meet_link)
+    VALUES (?, ?, ?, ?, ?)
   `);
-  stmt.run(sender_id, receiver_id, skill_offered, skill_requested);
+  stmt.run(sender_id, receiver_id, skill_offered, skill_requested, meet_link);
   res.json({ message: 'Swap request dispatched!' });
 });
 
@@ -150,11 +172,69 @@ app.get('/api/requests/:userId', (req, res) => {
 });
 
 app.patch('/api/requests/:id', (req, res) => {
-  db.prepare('UPDATE swap_requests SET status = ? WHERE id = ?').run(req.body.status, req.params.id);
+  const { status } = req.body;
+  db.prepare('UPDATE swap_requests SET status = ? WHERE id = ?').run(status, req.params.id);
   res.json({ message: 'Status updated' });
 });
 
-// 7. Reviews
+// Single swap details endpoint
+app.get('/api/swap-details/:id', (req, res) => {
+  const swap = db.prepare(`
+    SELECT sr.*, 
+           sender.name as sender_name, receiver.name as receiver_name
+    FROM swap_requests sr
+    JOIN users sender ON sr.sender_id = sender.id
+    JOIN users receiver ON sr.receiver_id = receiver.id
+    WHERE sr.id = ?
+  `).get(req.params.id);
+  res.json(swap);
+});
+
+// 7. Messages
+app.get('/api/messages/:swapId', (req, res) => {
+  const messages = db.prepare(`
+    SELECT m.*, u.name as sender_name
+    FROM swap_messages m
+    JOIN users u ON m.sender_id = u.id
+    WHERE m.swap_id = ?
+    ORDER BY m.created_at ASC
+  `).all(req.params.swapId);
+  res.json(messages);
+});
+
+app.post('/api/messages', (req, res) => {
+  const { swap_id, sender_id, message } = req.body;
+  if (!message || !message.trim()) return res.status(400).json({ error: 'Message cannot be empty' });
+
+  db.prepare(`
+    INSERT INTO swap_messages (swap_id, sender_id, message)
+    VALUES (?, ?, ?)
+  `).run(swap_id, sender_id, message);
+
+  res.json({ message: 'Message sent' });
+});
+
+// 8. Shared Collaborative Notes APIs
+app.get('/api/notes/:swapId', (req, res) => {
+  let note = db.prepare('SELECT notes_content FROM swap_notes WHERE swap_id = ?').get(req.params.swapId);
+  if (!note) {
+    db.prepare('INSERT INTO swap_notes (swap_id, notes_content) VALUES (?, ?)').run(req.params.swapId, '');
+    note = { notes_content: '' };
+  }
+  res.json(note);
+});
+
+app.post('/api/notes/:swapId', (req, res) => {
+  const { notes_content } = req.body;
+  db.prepare(`
+    INSERT INTO swap_notes (swap_id, notes_content, updated_at)
+    VALUES (?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(swap_id) DO UPDATE SET notes_content = excluded.notes_content, updated_at = CURRENT_TIMESTAMP
+  `).run(req.params.swapId, notes_content);
+  res.json({ message: 'Notes saved' });
+});
+
+// 9. Reviews
 app.post('/api/reviews', (req, res) => {
   const { reviewer_id, target_id, rating, comment } = req.body;
   db.prepare(`
@@ -165,4 +245,4 @@ app.post('/api/reviews', (req, res) => {
 });
 
 const PORT = 3000;
-app.listen(PORT, () => console.log(`Server is running at http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));

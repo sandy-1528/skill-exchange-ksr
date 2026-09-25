@@ -9,10 +9,9 @@
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800">
 
-  <!-- ================= AUTH VIEW (LOGIN / REGISTER) ================= -->
+  <!-- ================= AUTH VIEW ================= -->
   <div id="authScreen" class="min-h-screen flex items-center justify-center p-4">
     <div class="bg-white max-w-md w-full rounded-2xl shadow-xl p-8 border border-slate-200">
-      
       <div class="text-center mb-6">
         <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 mb-2">
           <i class="fa-solid fa-graduation-cap text-3xl"></i>
@@ -21,7 +20,6 @@
         <p class="text-xs text-slate-500">Peer-to-peer student skill exchange</p>
       </div>
 
-      <!-- Auth Toggle Tabs -->
       <div class="flex border-b border-slate-200 mb-6">
         <button id="authTabLogin" onclick="setAuthMode('login')" class="flex-1 py-2 font-bold text-sm text-indigo-600 border-b-2 border-indigo-600">Login</button>
         <button id="authTabRegister" onclick="setAuthMode('register')" class="flex-1 py-2 font-bold text-sm text-slate-400">Register</button>
@@ -29,7 +27,7 @@
 
       <div id="authError" class="hidden mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-600 text-xs rounded-lg"></div>
 
-      <!-- LOGIN FORM -->
+      <!-- LOGIN -->
       <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Email</label>
@@ -42,7 +40,7 @@
         <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-md transition">Sign In</button>
       </form>
 
-      <!-- REGISTER FORM -->
+      <!-- REGISTER -->
       <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-3 hidden">
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Full Name *</label>
@@ -57,26 +55,25 @@
           <input type="password" id="regPassword" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="At least 4 characters">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Bio</label>
-          <input type="text" id="regBio" class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="CS 2nd year, AI enthusiast...">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Bio / Year</label>
+          <input type="text" id="regBio" class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="3rd year CSE...">
         </div>
         <div>
-          <label class="block text-xs font-bold text-emerald-700 mb-1">Skills You Can Teach (Comma-separated) *</label>
-          <input type="text" id="regOffered" required class="w-full px-3 py-2 border border-emerald-300 bg-emerald-50/30 rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="e.g. Python, Machine Learning, SQL">
+          <label class="block text-xs font-bold text-emerald-700 mb-1">Skills You Can Teach *</label>
+          <input type="text" id="regOffered" required class="w-full px-3 py-2 border border-emerald-300 bg-emerald-50/30 rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="e.g. Python, Java, HTML, CSS">
         </div>
         <div>
-          <label class="block text-xs font-bold text-indigo-700 mb-1">Skills You Want To Learn (Comma-separated) *</label>
-          <input type="text" id="regWanted" required class="w-full px-3 py-2 border border-indigo-300 bg-indigo-50/30 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Figma, UI Design, Flutter">
+          <label class="block text-xs font-bold text-indigo-700 mb-1">Skills You Want To Learn *</label>
+          <input type="text" id="regWanted" required class="w-full px-3 py-2 border border-indigo-300 bg-indigo-50/30 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Figma, SQL">
         </div>
-        <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold shadow-md transition mt-2">Create Profile & Enter</button>
+        <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold shadow-md transition mt-2">Create Profile & Claim 5 Credits</button>
       </form>
-
     </div>
   </div>
 
-  <!-- ================= LOGGED IN DASHBOARD ================= -->
+  <!-- ================= DASHBOARD VIEW ================= -->
   <div id="mainDashboard" class="hidden">
-    <!-- Header -->
+    <!-- Navbar -->
     <header class="bg-indigo-600 text-white sticky top-0 z-40 shadow-sm">
       <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -84,6 +81,9 @@
           <span class="text-xl font-bold tracking-tight">SkillSwap</span>
         </div>
         <div class="flex items-center gap-4">
+          <div class="bg-amber-400 text-slate-900 px-3 py-1 rounded-full text-xs font-black flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-coins text-amber-800"></i> <span id="navCredits">5</span> Credits
+          </div>
           <div class="text-right">
             <p id="navUserName" class="text-sm font-bold leading-none"></p>
             <span id="navUserEmail" class="text-[11px] text-indigo-200"></span>
@@ -93,7 +93,7 @@
       </div>
     </header>
 
-    <!-- My Profile Snapshot Banner with Edit Button -->
+    <!-- Profile Snapshot Banner -->
     <div class="max-w-7xl mx-auto px-4 pt-6">
       <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -156,7 +156,82 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: EDIT PROFILE ================= -->
+  <!-- ================= DEDICATED LEARNING WORKSPACE (FULL SCREEN) ================= -->
+  <div id="workspaceView" class="hidden min-h-screen bg-slate-100 flex flex-col">
+    <!-- Workspace Top Header -->
+    <header class="bg-indigo-600 text-white px-6 py-3.5 flex items-center justify-between shadow-md">
+      <div class="flex items-center gap-4">
+        <button onclick="exitWorkspace()" class="px-3 py-1.5 bg-indigo-700 hover:bg-indigo-800 rounded-lg text-xs font-bold border border-indigo-500 flex items-center gap-2 transition">
+          <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </button>
+        <div>
+          <h2 class="text-base font-bold flex items-center gap-2">
+            <i class="fa-solid fa-laptop-code text-amber-300"></i>
+            1-on-1 Learning Room: <span id="wsPeerName" class="text-amber-200"></span>
+          </h2>
+          <p class="text-xs text-indigo-200" id="wsSkillsExchanged"></p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a id="wsMeetLink" href="#" target="_blank" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold shadow-md flex items-center gap-2 transition">
+          <i class="fa-solid fa-video"></i> Join Live Video Call
+        </a>
+      </div>
+    </header>
+
+    <!-- Workspace Two-Pane Body -->
+    <div class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-80px)]">
+      
+      <!-- LEFT PANE: 1-on-1 Chat Box (5 cols) -->
+      <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+        <div class="px-5 py-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="font-bold text-sm text-slate-700">Discussion & Chat</span>
+          </div>
+          <span class="text-[11px] text-slate-400">Live Peer Sync</span>
+        </div>
+
+        <!-- Chat history -->
+        <div id="wsChatMessages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/50"></div>
+
+        <!-- Chat Input -->
+        <form onsubmit="handleSendWsMessage(event)" class="p-3 bg-white border-t border-slate-200 flex gap-2">
+          <input type="text" id="wsChatInput" placeholder="Ask a doubt or paste a link..." required class="flex-1 px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+          <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- RIGHT PANE: Collaborative Study Notes & Resources (7 cols) -->
+      <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+        <div class="px-5 py-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-book-open text-indigo-600"></i>
+            <span class="font-bold text-sm text-slate-700">Shared Study Notes & Code Snippets</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="notesStatus" class="text-xs text-slate-400">Loaded</span>
+            <button onclick="saveStudyNotes()" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition flex items-center gap-1">
+              <i class="fa-solid fa-floppy-disk"></i> Save Notes
+            </button>
+          </div>
+        </div>
+
+        <div class="p-4 flex-1 flex flex-col">
+          <textarea id="wsNotesArea" class="w-full flex-1 p-4 rounded-xl border border-slate-200 text-sm font-mono leading-relaxed outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50/30 resize-none" placeholder="Write session notes, shared learning links, key points, syntax cheatsheets, or roadmap here... Both can read and update!"></textarea>
+          <div class="mt-2 text-[11px] text-slate-400 flex items-center justify-between">
+            <span>Tip: Keep key interview questions, code snippets, or Figma URLs saved here.</span>
+            <span>Saved in Database</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: EDIT PROFILE -->
   <div id="editProfileModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
@@ -168,34 +243,32 @@
         </button>
       </div>
 
-      <div id="editProfileError" class="hidden mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-600 text-xs rounded-lg"></div>
-
       <form id="editProfileForm" onsubmit="submitEditProfile(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Full Name *</label>
           <input type="text" id="editName" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Bio / Headline</label>
-          <input type="text" id="editBio" class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. 3rd year CSE student interested in web dev">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Bio / Year</label>
+          <input type="text" id="editBio" class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
         <div>
-          <label class="block text-xs font-bold text-emerald-700 mb-1">Skills You Can Teach (Comma-separated) *</label>
+          <label class="block text-xs font-bold text-emerald-700 mb-1">Skills You Can Teach *</label>
           <input type="text" id="editOffered" required class="w-full px-3 py-2 border border-emerald-300 bg-emerald-50/20 rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500">
         </div>
         <div>
-          <label class="block text-xs font-bold text-indigo-700 mb-1">Skills You Want To Learn (Comma-separated) *</label>
+          <label class="block text-xs font-bold text-indigo-700 mb-1">Skills You Want To Learn *</label>
           <input type="text" id="editWanted" required class="w-full px-3 py-2 border border-indigo-300 bg-indigo-50/20 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
         <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-          <button type="button" onclick="closeModal('editProfileModal')" class="px-4 py-2 border rounded-lg text-sm text-slate-600 hover:bg-slate-50 font-medium">Cancel</button>
-          <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow transition">Save Changes</button>
+          <button type="button" onclick="closeModal('editProfileModal')" class="px-4 py-2 border rounded-lg text-sm text-slate-600">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold">Save Changes</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Swap Modal -->
+  <!-- MODAL: SWAP REQUEST -->
   <div id="swapModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
       <h3 class="text-lg font-bold text-slate-800 mb-1">Propose Skill Swap</h3>
@@ -218,7 +291,7 @@
     </div>
   </div>
 
-  <!-- Rating Modal -->
+  <!-- MODAL: REVIEW -->
   <div id="reviewModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
       <h3 class="text-lg font-bold text-slate-800 mb-2">Leave Skill Feedback</h3>
@@ -246,6 +319,8 @@
 
   <script>
     let currentUser = null;
+    let activeSwapId = null;
+    let chatPolling = null;
 
     function checkSession() {
       const stored = localStorage.getItem('skillswap_user');
@@ -274,21 +349,28 @@
 
     async function handleLogin(e) {
       e.preventDefault();
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: document.getElementById('loginEmail').value,
-          password: document.getElementById('loginPassword').value
-        })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        showError(data.error);
-      } else {
-        currentUser = data.user;
-        localStorage.setItem('skillswap_user', JSON.stringify(currentUser));
-        showDashboard();
+      document.getElementById('authError').classList.add('hidden');
+
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          showError(data.error || 'Login failed. Please check credentials.');
+        } else {
+          currentUser = data.user;
+          localStorage.setItem('skillswap_user', JSON.stringify(currentUser));
+          document.getElementById('loginForm').reset();
+          showDashboard();
+        }
+      } catch (err) {
+        showError('Network error. Make sure server is running.');
       }
     }
 
@@ -326,10 +408,12 @@
 
     function showDashboard() {
       document.getElementById('authScreen').classList.add('hidden');
+      document.getElementById('workspaceView').classList.add('hidden');
       document.getElementById('mainDashboard').classList.remove('hidden');
 
       document.getElementById('navUserName').innerText = currentUser.name;
       document.getElementById('navUserEmail').innerText = currentUser.email;
+      document.getElementById('navCredits').innerText = currentUser.credits ?? 5;
       document.getElementById('bannerName').innerText = currentUser.name;
       document.getElementById('bannerBio').innerText = currentUser.bio || 'Skill enthusiastic student';
       document.getElementById('bannerOffered').innerText = currentUser.skills_offered;
@@ -342,21 +426,21 @@
     function showAuth() {
       document.getElementById('authScreen').classList.remove('hidden');
       document.getElementById('mainDashboard').classList.add('hidden');
+      document.getElementById('workspaceView').classList.add('hidden');
     }
 
     function logout() {
       localStorage.removeItem('skillswap_user');
       currentUser = null;
+      if (chatPolling) clearInterval(chatPolling);
       showAuth();
     }
 
-    // ================= EDIT PROFILE HANDLERS =================
     function openEditProfileModal() {
       document.getElementById('editName').value = currentUser.name || '';
       document.getElementById('editBio').value = currentUser.bio || '';
       document.getElementById('editOffered').value = currentUser.skills_offered || '';
       document.getElementById('editWanted').value = currentUser.skills_wanted || '';
-      document.getElementById('editProfileError').classList.add('hidden');
       document.getElementById('editProfileModal').classList.remove('hidden');
     }
 
@@ -369,29 +453,17 @@
         skills_wanted: document.getElementById('editWanted').value
       };
 
-      try {
-        const res = await fetch(`/api/profile/${currentUser.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-          const errDiv = document.getElementById('editProfileError');
-          errDiv.innerText = data.error || 'Failed to update profile';
-          errDiv.classList.remove('hidden');
-          return;
-        }
-
-        // Update local session
+      const res = await fetch(`/api/profile/${currentUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (res.ok) {
         currentUser = data.user;
         localStorage.setItem('skillswap_user', JSON.stringify(currentUser));
-
         closeModal('editProfileModal');
-        showDashboard(); // Refresh UI and recalculate matches
-      } catch (err) {
-        console.error(err);
+        showDashboard();
       }
     }
 
@@ -414,7 +486,7 @@
       const container = document.getElementById('matchesGrid');
 
       if (!data.length) {
-        container.innerHTML = `<div class="col-span-3 text-center py-12 bg-white rounded-xl border border-slate-200"><p class="text-slate-500 font-medium">No other students registered yet. Register a second account to see matches!</p></div>`;
+        container.innerHTML = `<div class="col-span-3 text-center py-12 bg-white rounded-xl border border-slate-200"><p class="text-slate-500 font-medium">No other students registered yet. Register a second account to test mutual matching!</p></div>`;
         return;
       }
 
@@ -425,7 +497,7 @@
               <div>
                 <h4 class="font-bold text-slate-900">${peer.name}</h4>
                 <div class="text-xs text-amber-500 font-semibold flex items-center gap-1">
-                  <i class="fa-solid fa-star"></i> ${peer.avg_rating || '5.0'} (${peer.review_count || 0} reviews)
+                  <i class="fa-solid fa-star"></i> ${peer.avg_rating || '5.0'} (${peer.review_count || 0})
                 </div>
               </div>
               ${peer.matchScore >= 100 
@@ -467,7 +539,7 @@
       const container = document.getElementById('browseGrid');
 
       if (!peers.length) {
-        container.innerHTML = `<div class="col-span-3 text-center py-10 text-slate-400 text-sm">No peers found matching the search.</div>`;
+        container.innerHTML = `<div class="col-span-3 text-center py-10 text-slate-400 text-sm">No peers found.</div>`;
         return;
       }
 
@@ -518,12 +590,19 @@
               </p>
             </div>
 
-            ${isIncoming && r.status === 'pending' ? `
-              <div class="flex items-center gap-2">
-                <button onclick="updateStatus(${r.id}, 'accepted')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-semibold">Accept</button>
-                <button onclick="updateStatus(${r.id}, 'rejected')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded text-xs font-semibold">Reject</button>
-              </div>
-            ` : ''}
+            <div class="flex items-center gap-2 flex-wrap">
+              ${isIncoming && r.status === 'pending' ? `
+                <button onclick="updateStatus(${r.id}, 'accepted')" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold shadow-sm">Accept</button>
+                <button onclick="updateStatus(${r.id}, 'rejected')" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded text-xs font-bold shadow-sm">Reject</button>
+              ` : ''}
+
+              <!-- Once Accepted -> Enter Workspace Button -->
+              ${r.status === 'accepted' ? `
+                <button onclick="enterWorkspace(${r.id})" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-md transition">
+                  <i class="fa-solid fa-chalkboard-user"></i> Open Learning Room
+                </button>
+              ` : ''}
+            </div>
           </div>
         `;
       }).join('');
@@ -538,6 +617,108 @@
       loadRequests();
     }
 
+    // ================= DEDICATED WORKSPACE LOGIC =================
+    async function enterWorkspace(swapId) {
+      activeSwapId = swapId;
+
+      // Fetch swap details
+      const res = await fetch(`/api/swap-details/${swapId}`);
+      const swap = await res.json();
+
+      const isSender = swap.sender_id === currentUser.id;
+      const peerName = isSender ? swap.receiver_name : swap.sender_name;
+
+      document.getElementById('wsPeerName').innerText = peerName;
+      document.getElementById('wsSkillsExchanged').innerText = `Exchange: ${swap.skill_offered} ⇄ ${swap.skill_requested}`;
+      document.getElementById('wsMeetLink').href = swap.meet_link;
+
+      // Toggle views
+      document.getElementById('mainDashboard').classList.add('hidden');
+      document.getElementById('workspaceView').classList.remove('hidden');
+
+      // Load study notes & messages
+      loadStudyNotes(swapId);
+      loadWsChatMessages(swapId);
+
+      if (chatPolling) clearInterval(chatPolling);
+      chatPolling = setInterval(() => loadWsChatMessages(swapId), 2000);
+    }
+
+    function exitWorkspace() {
+      activeSwapId = null;
+      if (chatPolling) clearInterval(chatPolling);
+      document.getElementById('workspaceView').classList.add('hidden');
+      document.getElementById('mainDashboard').classList.remove('hidden');
+      loadRequests();
+    }
+
+    async function loadWsChatMessages(swapId) {
+      const res = await fetch(`/api/messages/${swapId}`);
+      const messages = await res.json();
+      const container = document.getElementById('wsChatMessages');
+
+      if (!messages.length) {
+        container.innerHTML = `<div class="text-center text-xs text-slate-400 py-12">No messages yet. Say hello to your study partner!</div>`;
+        return;
+      }
+
+      container.innerHTML = messages.map(m => {
+        const isMe = m.sender_id === currentUser.id;
+        return `
+          <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+            <span class="text-[10px] text-slate-400 mb-0.5">${m.sender_name}</span>
+            <div class="max-w-[85%] px-3.5 py-2 rounded-xl text-xs ${isMe ? 'bg-indigo-600 text-white rounded-br-none shadow-sm' : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none shadow-sm'}">
+              ${m.message}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function handleSendWsMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('wsChatInput');
+      const message = input.value;
+      if (!message.trim() || !activeSwapId) return;
+
+      await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          swap_id: activeSwapId,
+          sender_id: currentUser.id,
+          message: message
+        })
+      });
+
+      input.value = '';
+      loadWsChatMessages(activeSwapId);
+    }
+
+    async function loadStudyNotes(swapId) {
+      const res = await fetch(`/api/notes/${swapId}`);
+      const data = await res.json();
+      document.getElementById('wsNotesArea').value = data.notes_content || '';
+      document.getElementById('notesStatus').innerText = 'Loaded';
+    }
+
+    async function saveStudyNotes() {
+      if (!activeSwapId) return;
+      const status = document.getElementById('notesStatus');
+      status.innerText = 'Saving...';
+
+      const content = document.getElementById('wsNotesArea').value;
+      await fetch(`/api/notes/${activeSwapId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes_content: content })
+      });
+
+      status.innerText = 'Saved in database!';
+      setTimeout(() => { status.innerText = ''; }, 2000);
+    }
+
+    // ================= MODALS & SWAPS =================
     function openSwapModal(peerId, peerName) {
       document.getElementById('modalTargetId').value = peerId;
       document.getElementById('modalTargetInfo').innerText = `Proposing an exchange with ${peerName}`;
