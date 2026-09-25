@@ -3,157 +3,307 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SkillSwap | Student Exchange Platform</title>
+  <title>SkillSwap - Student Platform</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen">
+<body class="bg-slate-100 min-h-screen text-slate-800">
 
-  <!-- TOP NAV -->
-  <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <i class="fa-solid fa-graduation-cap text-2xl text-amber-300"></i>
-        <span class="text-xl font-bold tracking-tight">SkillSwap</span>
+  <!-- ================= AUTH VIEW (LOGIN / REGISTER) ================= -->
+  <div id="authScreen" class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl shadow-xl p-8 border border-slate-200">
+      
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 mb-2">
+          <i class="fa-solid fa-graduation-cap text-3xl"></i>
+        </div>
+        <h1 class="text-2xl font-black text-slate-800 tracking-tight">SkillSwap</h1>
+        <p class="text-xs text-slate-500">Peer-to-peer student skill exchange</p>
       </div>
 
-      <!-- Active User Switcher for Hackathon Demo -->
-      <div class="flex items-center gap-3 bg-indigo-700/60 px-3 py-1.5 rounded-lg border border-indigo-500">
-        <label for="userSelect" class="text-xs uppercase font-semibold text-indigo-200">Acting As:</label>
-        <select id="userSelect" onchange="handleUserChange()" class="bg-indigo-800 text-white text-sm rounded px-2 py-1 outline-none border border-indigo-400 cursor-pointer">
-          <!-- Populated dynamically -->
-        </select>
+      <!-- Auth Toggle Tabs -->
+      <div class="flex border-b border-slate-200 mb-6">
+        <button id="authTabLogin" onclick="setAuthMode('login')" class="flex-1 py-2 font-bold text-sm text-indigo-600 border-b-2 border-indigo-600">Login</button>
+        <button id="authTabRegister" onclick="setAuthMode('register')" class="flex-1 py-2 font-bold text-sm text-slate-400">Register</button>
+      </div>
+
+      <div id="authError" class="hidden mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-600 text-xs rounded-lg"></div>
+
+      <!-- LOGIN FORM -->
+      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Email</label>
+          <input type="email" id="loginEmail" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="student@college.edu">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Password</label>
+          <input type="password" id="loginPassword" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="••••••••">
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-md transition">Sign In</button>
+      </form>
+
+      <!-- REGISTER FORM -->
+      <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-3 hidden">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Full Name *</label>
+          <input type="text" id="regName" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. John Doe">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Email *</label>
+          <input type="email" id="regEmail" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="john@college.edu">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Password *</label>
+          <input type="password" id="regPassword" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="At least 4 characters">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Bio</label>
+          <input type="text" id="regBio" class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="CS 2nd year, AI enthusiast...">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-emerald-700 mb-1">Skills You Can Teach (Comma-separated) *</label>
+          <input type="text" id="regOffered" required class="w-full px-3 py-2 border border-emerald-300 bg-emerald-50/30 rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500" placeholder="e.g. Python, Machine Learning, SQL">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-indigo-700 mb-1">Skills You Want To Learn (Comma-separated) *</label>
+          <input type="text" id="regWanted" required class="w-full px-3 py-2 border border-indigo-300 bg-indigo-50/30 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Figma, UI Design, Flutter">
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold shadow-md transition mt-2">Create Profile & Enter</button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ================= LOGGED IN DASHBOARD ================= -->
+  <div id="mainDashboard" class="hidden">
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white sticky top-0 z-40 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <i class="fa-solid fa-graduation-cap text-2xl text-amber-300"></i>
+          <span class="text-xl font-bold tracking-tight">SkillSwap</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="text-right">
+            <p id="navUserName" class="text-sm font-bold leading-none"></p>
+            <span id="navUserEmail" class="text-[11px] text-indigo-200"></span>
+          </div>
+          <button onclick="logout()" class="px-3 py-1.5 bg-indigo-700 hover:bg-indigo-800 rounded-lg text-xs font-semibold border border-indigo-500 transition">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- My Profile Snapshot Banner -->
+    <div class="max-w-7xl mx-auto px-4 pt-6">
+      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">Welcome, <span id="bannerName"></span> 👋</h2>
+          <p id="bannerBio" class="text-xs text-slate-500 mt-0.5"></p>
+        </div>
+        <div class="flex flex-wrap gap-4 text-xs">
+          <div class="bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg">
+            <span class="font-bold text-emerald-800 block text-[10px] uppercase">You Offer:</span>
+            <span id="bannerOffered" class="text-emerald-700 font-medium"></span>
+          </div>
+          <div class="bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-lg">
+            <span class="font-bold text-indigo-800 block text-[10px] uppercase">You Want:</span>
+            <span id="bannerWanted" class="text-indigo-700 font-medium"></span>
+          </div>
+        </div>
       </div>
     </div>
-  </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 py-8">
-    
-    <!-- DASHBOARD TABS -->
-    <div class="flex flex-wrap gap-2 border-b border-slate-200 mb-6 pb-2">
-      <button onclick="switchTab('matches')" id="tab-matches" class="tab-btn px-4 py-2 font-medium rounded-lg bg-indigo-600 text-white flex items-center gap-2">
-        <i class="fa-solid fa-bolt text-amber-300"></i> Smart Matches
-      </button>
-      <button onclick="switchTab('browse')" id="tab-browse" class="tab-btn px-4 py-2 font-medium rounded-lg text-slate-600 hover:bg-slate-200 flex items-center gap-2">
-        <i class="fa-solid fa-magnifying-glass"></i> Browse All Peers
-      </button>
-      <button onclick="switchTab('requests')" id="tab-requests" class="tab-btn px-4 py-2 font-medium rounded-lg text-slate-600 hover:bg-slate-200 flex items-center gap-2">
-        <i class="fa-solid fa-handshake"></i> Swaps & Requests (<span id="reqCount">0</span>)
-      </button>
-    </div>
-
-    <!-- TAB 1: SMART MATCHES -->
-    <section id="view-matches">
-      <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-xl p-5 mb-6">
-        <h2 class="text-lg font-bold text-indigo-900">Intelligent Matchmaking</h2>
-        <p class="text-sm text-indigo-700">Calculated based on your wanted skills and what your fellow students can offer in return.</p>
+    <!-- Navigation Tabs -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+      <div class="flex flex-wrap gap-2 border-b border-slate-200 mb-6 pb-2">
+        <button onclick="switchTab('matches')" id="tab-matches" class="tab-btn px-4 py-2 font-medium rounded-lg bg-indigo-600 text-white flex items-center gap-2">
+          <i class="fa-solid fa-bolt text-amber-300"></i> Smart Matches
+        </button>
+        <button onclick="switchTab('browse')" id="tab-browse" class="tab-btn px-4 py-2 font-medium rounded-lg text-slate-600 hover:bg-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-users"></i> All Students
+        </button>
+        <button onclick="switchTab('requests')" id="tab-requests" class="tab-btn px-4 py-2 font-medium rounded-lg text-slate-600 hover:bg-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-handshake"></i> Swaps & Requests (<span id="reqCount">0</span>)
+        </button>
       </div>
 
-      <div id="matchesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Rendered with JS -->
-      </div>
-    </section>
+      <!-- Tab 1: Smart Matches -->
+      <section id="view-matches">
+        <div id="matchesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </section>
 
-    <!-- TAB 2: BROWSE ALL & SEARCH -->
-    <section id="view-browse" class="hidden">
-      <div class="mb-6 flex gap-3">
-        <div class="relative flex-1">
+      <!-- Tab 2: Browse All -->
+      <section id="view-browse" class="hidden">
+        <div class="mb-6 relative">
           <i class="fa-solid fa-search absolute left-3 top-3.5 text-slate-400"></i>
-          <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Search by skill name (e.g. Python, UI Design, Guitar)..." class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none">
+          <input type="text" id="searchInput" onkeyup="loadBrowse()" placeholder="Search peers by name or skill..." class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
-      </div>
-      <div id="browseGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-    </section>
+        <div id="browseGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </section>
 
-    <!-- TAB 3: REQUESTS -->
-    <section id="view-requests" class="hidden">
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
-          <h3 class="font-bold text-slate-800">Your Swap Exchanges</h3>
+      <!-- Tab 3: Requests -->
+      <section id="view-requests" class="hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 font-bold text-slate-800">Your Exchanges</div>
+          <div id="requestsList" class="divide-y divide-slate-100"></div>
         </div>
-        <div id="requestsList" class="divide-y divide-slate-100"></div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </div>
+  </div>
 
-  <!-- MODAL: SEND SWAP PROPOSAL -->
+  <!-- Swap Modal -->
   <div id="swapModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
-      <h3 class="text-lg font-bold text-slate-800 mb-1">Request Skill Exchange</h3>
+      <h3 class="text-lg font-bold text-slate-800 mb-1">Propose Skill Swap</h3>
       <p class="text-xs text-slate-500 mb-4" id="modalTargetInfo"></p>
-      
       <form id="swapForm" onsubmit="submitSwapRequest(event)" class="space-y-4">
         <input type="hidden" id="modalTargetId">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">I will teach them:</label>
-          <input type="text" id="modalSkillOffered" required class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="e.g. Python basics">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">What skill will you teach them?</label>
+          <input type="text" id="modalSkillOffered" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">In exchange for learning:</label>
-          <input type="text" id="modalSkillRequested" required class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="e.g. Figma prototyping">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">What skill do you want from them?</label>
+          <input type="text" id="modalSkillRequested" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
         <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="closeModal('swapModal')" class="px-4 py-2 border rounded-lg text-sm text-slate-600 hover:bg-slate-100">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">Send Request</button>
+          <button type="button" onclick="closeModal('swapModal')" class="px-4 py-2 border rounded-lg text-sm text-slate-600">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700">Send Offer</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: ADD RATING -->
+  <!-- Rating Modal -->
   <div id="reviewModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
-      <h3 class="text-lg font-bold text-slate-800 mb-2">Rate Exchange Session</h3>
+      <h3 class="text-lg font-bold text-slate-800 mb-2">Leave Skill Feedback</h3>
       <form id="reviewForm" onsubmit="submitReview(event)" class="space-y-4">
         <input type="hidden" id="reviewTargetId">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Rating (1 to 5 Stars):</label>
-          <select id="reviewRating" class="w-full px-3 py-2 border rounded-lg text-sm outline-none">
-            <option value="5">⭐⭐⭐⭐⭐ (5 - Exceptional)</option>
-            <option value="4">⭐⭐⭐⭐ (4 - Very Good)</option>
-            <option value="3">⭐⭐⭐ (3 - Average)</option>
-            <option value="2">⭐⭐ (2 - Needs Improvement)</option>
-            <option value="1">⭐ (1 - Poor)</option>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Rating</label>
+          <select id="reviewRating" class="w-full px-3 py-2 border rounded-lg text-sm">
+            <option value="5">⭐⭐⭐⭐⭐ (5 - Master)</option>
+            <option value="4">⭐⭐⭐⭐ (4 - Very Helpful)</option>
+            <option value="3">⭐⭐⭐ (3 - Satisfactory)</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Feedback / Comment:</label>
-          <textarea id="reviewComment" rows="3" required class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="How did the skill sharing go?"></textarea>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Comments</label>
+          <textarea id="reviewComment" rows="3" required class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="How was the session?"></textarea>
         </div>
         <div class="flex justify-end gap-2">
-          <button type="button" onclick="closeModal('reviewModal')" class="px-4 py-2 border rounded-lg text-sm text-slate-600 hover:bg-slate-100">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">Submit Review</button>
+          <button type="button" onclick="closeModal('reviewModal')" class="px-4 py-2 border rounded-lg text-sm text-slate-600">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold">Submit</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
   <script>
-    let users = [];
-    let currentUserId = 1;
+    let currentUser = null;
 
-    async function init() {
-      await fetchUsers();
+    function checkSession() {
+      const stored = localStorage.getItem('skillswap_user');
+      if (stored) {
+        currentUser = JSON.parse(stored);
+        showDashboard();
+      } else {
+        showAuth();
+      }
+    }
+
+    function setAuthMode(mode) {
+      document.getElementById('authError').classList.add('hidden');
+      if (mode === 'login') {
+        document.getElementById('loginForm').classList.remove('hidden');
+        document.getElementById('registerForm').classList.add('hidden');
+        document.getElementById('authTabLogin').className = 'flex-1 py-2 font-bold text-sm text-indigo-600 border-b-2 border-indigo-600';
+        document.getElementById('authTabRegister').className = 'flex-1 py-2 font-bold text-sm text-slate-400';
+      } else {
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('registerForm').classList.remove('hidden');
+        document.getElementById('authTabRegister').className = 'flex-1 py-2 font-bold text-sm text-indigo-600 border-b-2 border-indigo-600';
+        document.getElementById('authTabLogin').className = 'flex-1 py-2 font-bold text-sm text-slate-400';
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: document.getElementById('loginEmail').value,
+          password: document.getElementById('loginPassword').value
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showError(data.error);
+      } else {
+        currentUser = data.user;
+        localStorage.setItem('skillswap_user', JSON.stringify(currentUser));
+        showDashboard();
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('regName').value,
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value,
+        bio: document.getElementById('regBio').value,
+        skills_offered: document.getElementById('regOffered').value,
+        skills_wanted: document.getElementById('regWanted').value
+      };
+
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showError(data.error);
+      } else {
+        currentUser = data.user;
+        localStorage.setItem('skillswap_user', JSON.stringify(currentUser));
+        showDashboard();
+      }
+    }
+
+    function showError(msg) {
+      const err = document.getElementById('authError');
+      err.innerText = msg;
+      err.classList.remove('hidden');
+    }
+
+    function showDashboard() {
+      document.getElementById('authScreen').classList.add('hidden');
+      document.getElementById('mainDashboard').classList.remove('hidden');
+
+      document.getElementById('navUserName').innerText = currentUser.name;
+      document.getElementById('navUserEmail').innerText = currentUser.email;
+      document.getElementById('bannerName').innerText = currentUser.name;
+      document.getElementById('bannerBio').innerText = currentUser.bio || 'Skill enthusiastic student';
+      document.getElementById('bannerOffered').innerText = currentUser.skills_offered;
+      document.getElementById('bannerWanted').innerText = currentUser.skills_wanted;
+
       loadMatches();
       loadRequests();
     }
 
-    async function fetchUsers() {
-      const res = await fetch('/api/users');
-      users = await res.json();
-      
-      const select = document.getElementById('userSelect');
-      select.innerHTML = users.map(u => 
-        `<option value="${u.id}" ${u.id == currentUserId ? 'selected' : ''}>${u.name} (ID: ${u.id})</option>`
-      ).join('');
+    function showAuth() {
+      document.getElementById('authScreen').classList.remove('hidden');
+      document.getElementById('mainDashboard').classList.add('hidden');
     }
 
-    function handleUserChange() {
-      currentUserId = document.getElementById('userSelect').value;
-      loadMatches();
-      loadRequests();
+    function logout() {
+      localStorage.removeItem('skillswap_user');
+      currentUser = null;
+      showAuth();
     }
 
     function switchTab(tab) {
@@ -166,15 +316,16 @@
       document.getElementById(`tab-${tab}`).className = 'tab-btn px-4 py-2 font-medium rounded-lg bg-indigo-600 text-white flex items-center gap-2';
 
       if (tab === 'browse') loadBrowse();
+      if (tab === 'requests') loadRequests();
     }
 
     async function loadMatches() {
-      const res = await fetch(`/api/match/${currentUserId}`);
+      const res = await fetch(`/api/match/${currentUser.id}`);
       const data = await res.json();
       const container = document.getElementById('matchesGrid');
-      
+
       if (!data.length) {
-        container.innerHTML = `<p class="text-slate-400 col-span-3 text-center py-8">No peers found to match with.</p>`;
+        container.innerHTML = `<div class="col-span-3 text-center py-12 bg-white rounded-xl border border-slate-200"><p class="text-slate-500 font-medium">No other students registered yet. Register a second account to see matches!</p></div>`;
         return;
       }
 
@@ -182,13 +333,10 @@
         <div class="bg-white rounded-xl shadow-sm border ${peer.matchScore >= 100 ? 'border-amber-400 ring-2 ring-amber-300/40' : 'border-slate-200'} p-5 flex flex-col justify-between">
           <div>
             <div class="flex items-start justify-between mb-3">
-              <div class="flex items-center gap-3">
-                <img src="${peer.avatar}" class="w-12 h-12 rounded-full object-cover border" alt="${peer.name}">
-                <div>
-                  <h4 class="font-bold text-slate-900">${peer.name}</h4>
-                  <div class="text-xs text-amber-500 font-semibold flex items-center gap-1">
-                    <i class="fa-solid fa-star"></i> ${peer.avg_rating || '5.0'} (${peer.review_count || 0} reviews)
-                  </div>
+              <div>
+                <h4 class="font-bold text-slate-900">${peer.name}</h4>
+                <div class="text-xs text-amber-500 font-semibold flex items-center gap-1">
+                  <i class="fa-solid fa-star"></i> ${peer.avg_rating || '5.0'} (${peer.review_count || 0} reviews)
                 </div>
               </div>
               ${peer.matchScore >= 100 
@@ -196,18 +344,18 @@
                 : `<span class="bg-slate-100 text-slate-600 text-[11px] font-semibold px-2 py-0.5 rounded-full">${peer.matchScore}% Match</span>`}
             </div>
 
-            <p class="text-xs text-slate-500 mb-4 line-clamp-2">${peer.bio}</p>
+            <p class="text-xs text-slate-500 mb-4 line-clamp-2">${peer.bio || 'Student'}</p>
 
             <div class="space-y-2 mb-4">
               <div>
-                <span class="text-[11px] font-bold uppercase text-emerald-700 tracking-wider">Teaches:</span>
+                <span class="text-[11px] font-bold uppercase text-emerald-700 tracking-wider">Can Teach:</span>
                 <div class="flex flex-wrap gap-1 mt-1">
                   ${peer.skills_offered.split(',').map(s => `<span class="bg-emerald-50 text-emerald-700 text-xs px-2 py-0.5 rounded border border-emerald-200">${s.trim()}</span>`).join('')}
                 </div>
               </div>
 
               <div>
-                <span class="text-[11px] font-bold uppercase text-indigo-700 tracking-wider">Wants to Learn:</span>
+                <span class="text-[11px] font-bold uppercase text-indigo-700 tracking-wider">Wants To Learn:</span>
                 <div class="flex flex-wrap gap-1 mt-1">
                   ${peer.skills_wanted.split(',').map(s => `<span class="bg-indigo-50 text-indigo-700 text-xs px-2 py-0.5 rounded border border-indigo-200">${s.trim()}</span>`).join('')}
                 </div>
@@ -225,53 +373,45 @@
 
     async function loadBrowse() {
       const search = document.getElementById('searchInput').value;
-      const res = await fetch(`/api/users?search=${encodeURIComponent(search)}`);
-      const data = await res.json();
+      const res = await fetch(`/api/users?excludeId=${currentUser.id}&search=${encodeURIComponent(search)}`);
+      const peers = await res.json();
       const container = document.getElementById('browseGrid');
 
-      const peers = data.filter(u => u.id != currentUserId);
+      if (!peers.length) {
+        container.innerHTML = `<div class="col-span-3 text-center py-10 text-slate-400 text-sm">No peers found matching the search.</div>`;
+        return;
+      }
 
       container.innerHTML = peers.map(peer => `
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
           <div>
-            <div class="flex items-center gap-3 mb-3">
-              <img src="${peer.avatar}" class="w-12 h-12 rounded-full object-cover border" alt="${peer.name}">
-              <div>
-                <h4 class="font-bold text-slate-900">${peer.name}</h4>
-                <div class="text-xs text-amber-500 font-semibold flex items-center gap-1">
-                  <i class="fa-solid fa-star"></i> ${peer.avg_rating || '5.0'} (${peer.review_count || 0})
-                </div>
-              </div>
-            </div>
-            <p class="text-xs text-slate-500 mb-4">${peer.bio}</p>
-            <div class="space-y-2 mb-4 text-xs">
+            <h4 class="font-bold text-slate-900">${peer.name}</h4>
+            <div class="text-xs text-amber-500 font-semibold mb-2"><i class="fa-solid fa-star"></i> ${peer.avg_rating || '5.0'} (${peer.review_count || 0})</div>
+            <p class="text-xs text-slate-500 mb-3">${peer.bio || 'Student'}</p>
+            <div class="space-y-1 text-xs">
               <p><strong class="text-emerald-700">Teaches:</strong> ${peer.skills_offered}</p>
               <p><strong class="text-indigo-700">Wants:</strong> ${peer.skills_wanted}</p>
             </div>
           </div>
-          <button onclick="openSwapModal(${peer.id}, '${peer.name}')" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold py-2 rounded-lg transition">Request Swap</button>
+          <button onclick="openSwapModal(${peer.id}, '${peer.name}')" class="mt-4 w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold py-2 rounded-lg">Request Swap</button>
         </div>
       `).join('');
     }
 
-    function handleSearch() {
-      loadBrowse();
-    }
-
     async function loadRequests() {
-      const res = await fetch(`/api/requests/${currentUserId}`);
+      const res = await fetch(`/api/requests/${currentUser.id}`);
       const requests = await res.json();
       
       document.getElementById('reqCount').innerText = requests.length;
       const list = document.getElementById('requestsList');
 
       if (!requests.length) {
-        list.innerHTML = `<div class="p-6 text-center text-slate-400 text-sm">No swap requests found. Initiate one from the matches tab!</div>`;
+        list.innerHTML = `<div class="p-6 text-center text-slate-400 text-sm">No swap requests initiated yet.</div>`;
         return;
       }
 
       list.innerHTML = requests.map(r => {
-        const isIncoming = r.receiver_id == currentUserId;
+        const isIncoming = r.receiver_id == currentUser.id;
         const otherParty = isIncoming ? r.sender_name : r.receiver_name;
         const badgeColor = r.status === 'accepted' ? 'bg-emerald-100 text-emerald-800' : r.status === 'rejected' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800';
 
@@ -287,7 +427,6 @@
               <p class="text-sm text-slate-700">
                 Offering: <span class="font-semibold text-emerald-700">${r.skill_offered}</span> ➔ Receiving: <span class="font-semibold text-indigo-700">${r.skill_requested}</span>
               </p>
-              <span class="text-[11px] text-slate-400">${new Date(r.created_at).toLocaleString()}</span>
             </div>
 
             ${isIncoming && r.status === 'pending' ? `
@@ -312,29 +451,25 @@
 
     function openSwapModal(peerId, peerName) {
       document.getElementById('modalTargetId').value = peerId;
-      document.getElementById('modalTargetInfo').innerText = `Propose an exchange with ${peerName}`;
+      document.getElementById('modalTargetInfo').innerText = `Proposing an exchange with ${peerName}`;
       document.getElementById('swapModal').classList.remove('hidden');
     }
 
     async function submitSwapRequest(e) {
       e.preventDefault();
-      const payload = {
-        sender_id: currentUserId,
-        receiver_id: document.getElementById('modalTargetId').value,
-        skill_offered: document.getElementById('modalSkillOffered').value,
-        skill_requested: document.getElementById('modalSkillRequested').value,
-      };
-
       await fetch('/api/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          sender_id: currentUser.id,
+          receiver_id: document.getElementById('modalTargetId').value,
+          skill_offered: document.getElementById('modalSkillOffered').value,
+          skill_requested: document.getElementById('modalSkillRequested').value
+        })
       });
-
       closeModal('swapModal');
       document.getElementById('swapForm').reset();
       switchTab('requests');
-      loadRequests();
     }
 
     function openReviewModal(targetId) {
@@ -344,19 +479,16 @@
 
     async function submitReview(e) {
       e.preventDefault();
-      const payload = {
-        reviewer_id: currentUserId,
-        target_id: document.getElementById('reviewTargetId').value,
-        rating: document.getElementById('reviewRating').value,
-        comment: document.getElementById('reviewComment').value
-      };
-
       await fetch('/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          reviewer_id: currentUser.id,
+          target_id: document.getElementById('reviewTargetId').value,
+          rating: document.getElementById('reviewRating').value,
+          comment: document.getElementById('reviewComment').value
+        })
       });
-
       closeModal('reviewModal');
       document.getElementById('reviewForm').reset();
       loadMatches();
@@ -366,7 +498,7 @@
       document.getElementById(id).classList.add('hidden');
     }
 
-    init();
+    checkSession();
   </script>
 </body>
 </html>
